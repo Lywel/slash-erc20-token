@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Button, Card, CardTitle, CardText, Row, Col, Container } from 'reactstrap';
 import SimpleStorageContract from "./contracts/SimpleStorage.json";
 import getWeb3 from "./utils/getWeb3";
 import truffleContract from "truffle-contract";
@@ -21,9 +22,7 @@ class App extends Component {
       Contract.setProvider(web3.currentProvider);
       const instance = await Contract.deployed();
 
-      // Set web3, accounts, and contract to the state, and then proceed with an
-      // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance }, this.runExample);
+      this.setState({ web3, accounts, contract: instance }, this.getBalances);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -33,36 +32,44 @@ class App extends Component {
     }
   };
 
-  runExample = async () => {
+  getBalances = async () => {
     const { accounts, contract } = this.state;
+    //await contract.set(5, { from: accounts[0] });
+    //const response = await contract.get();
+    //this.setState({ storageValue: response.toNumber() });
 
-    // Stores a given value, 5 by default.
-    await contract.set(5, { from: accounts[0] });
-
-    // Get the value from the contract to prove it worked.
-    const response = await contract.get();
-
-    // Update state with the result.
-    this.setState({ storageValue: response.toNumber() });
+    const balances = await Promise.all(accounts.map(this.computeBalance))
+    this.setState({ balances: balances })
   };
 
+  computeBalance = async (address) => {
+    const { web3 } = this.state;
+    const weiBalance = await web3.eth.getBalance(address)
+    return web3.utils.fromWei(`${weiBalance}`, 'ether');
+  }
+
   render() {
-    if (!this.state.web3) {
+    if (!this.state.balances) {
       return <div>Loading Web3, accounts, and contract...</div>;
     }
     return (
       <div className="App">
-        <h1>Good to Go!</h1>
-        <p>Your Truffle Box is installed and ready.</p>
-        <h2>Smart Contract Example</h2>
-        <p>
-          If your contracts compiled and migrated successfully, below will show
-          a stored value of 5 (by default).
-        </p>
-        <p>
-          Try changing the value stored on <strong>line 37</strong> of App.js.
-        </p>
-        <div>The stored value is: {this.state.storageValue}</div>
+        <Container>
+          <h1>Slash coins</h1>
+          <Row>
+            <Col lg="3">
+              <Card body inverse style={{ backgroundColor: '#333', borderColor: '#333' }}>
+                <CardTitle>Your wallet</CardTitle>
+                <CardText>
+                  <small>Balance: {this.state.balances[0]}</small>
+                </CardText>
+                <CardText>
+                  <small className="text-muted">{this.state.accounts[0]}</small>
+                </CardText>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
       </div>
     );
   }
