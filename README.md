@@ -13,7 +13,8 @@ Launch a local etherneum network using ganache
 # -b <block-minning-speed-in-seconds>
 ganache-cli -p 7545 -b 3
 ```
-Save the HD Wallet Mnemonic for later use (~10 words string).
+It will generate some wallets (public/private keys). Save the generated HD Wallet
+Mnemonic for later use (~10 words string). This is what it should look like:
 ```
 HD Wallet
 ==================
@@ -21,10 +22,11 @@ Mnemonic: physical engage misery rival check frequent range runway ability radio
 ```
 
 ## Connect your browser to the netwok
-Connect to the new network using the HD Wallet mnemonic. On MetaMask it's
-achieved by using the `Import using account seed phrase` button and creating
-a password to access it. Then in the list of networks use `Custom RPC` and type
-the local address `http://127.0.0.1:7545`. Then you're connected.
+Connect to the new network using the HD Wallet mnemonic. In your browser, open
+MetaMask click on `Import using account seed phrase` button and creating
+a password to access it. Then in the list of networks select `Custom RPC` and
+use the local address `http://127.0.0.1:7545` as the `new RPC URL`. Then you're
+connected and should see 100ETH in the default wallet.
 
 
 ## Compile and deploy the contracts
