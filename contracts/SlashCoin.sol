@@ -4,7 +4,7 @@ contract SlashCoin {
   mapping (address => uint) public balances;
   address public owner;
 
-  function SlashCoin() public {
+  constructor() public {
     owner = msg.sender;
   }
 
@@ -18,3 +18,4 @@ contract SlashCoin {
     balances[msg.sender] -= amount;
     balances[receiver] += amount;
   }
+}
