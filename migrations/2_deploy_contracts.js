@@ -1,5 +1,5 @@
-var SimpleStorage = artifacts.require("./SimpleStorage.sol");
+var SlashCoin = artifacts.require("SlashCoin");
 
 module.exports = function(deployer) {
-  deployer.deploy(SimpleStorage);
+    deployer.deploy(SlashCoin);
 };
