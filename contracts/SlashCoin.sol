@@ -9,7 +9,7 @@ contract SlashCoin {
   }
 
   function mint(address receiver, uint amount) public {
-    require (msg.sender == owner);
+    //require (msg.sender == owner);
     balances[receiver] += amount;
   }
 
