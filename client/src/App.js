@@ -13,7 +13,9 @@ import "./App.css";
 
 class App extends Component {
   state = { web3: null, accounts: null, contract: null,
-    mintAmount: 0
+    mintAmount: 0,
+    transferAddress: 0x00000,
+    transferAmount: 20
   }
 
   componentDidMount = async () => {
@@ -22,6 +24,7 @@ class App extends Component {
       const web3 = await getWeb3()
       // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts()
+      console.log(typeof accounts[0])
       // Get the contract instance.
       const Contract = truffleContract(SlashCoin)
       Contract.setProvider(web3.currentProvider)
@@ -52,17 +55,19 @@ class App extends Component {
 
   mintAmount = async () => {
     const { contract, accounts } = this.state
-    await contract.mint(accounts[0], this.state.mintAmount, { from: accounts[0] });
+    await contract.mint(accounts[0], this.state.mintAmount, { from: accounts[0] })
     //const response = await contract.get();
     //this.setState({ storageValue: response.toNumber() });
   }
 
-  sentAmount = async () => {
+  sendAmount = async () => {
     const { web3, contract, accounts } = this.state
-    await contract.send(accounts[0], {
+    console.log('before', this.state.transferAmount)
+    await contract.send(this.state.transferAddress, {
         from: accounts[0],
-        value: web3.toWei(`${this.state.transferAmount}`, 'ether')
-      });
+        value: web3.utils.toWei(`${this.state.transferAmount}`, 'ether')
+      })
+    console.log('after')
   }
 
   handleMintAmountChange = (e) => {
@@ -118,11 +123,16 @@ class App extends Component {
               <CardBody>
                 <FormGroup>
                   <Label for="transferTo">Destination:</Label>
-                  <Input type="text" name="transferTo" id="transferTo" placeholder="0x0000..." />
+                  <Input type="text" name="transferTo"
+                    placeholder="0x0000..."
+                    value={this.state.transferAddress}
+                    onChange={this.handleTransferAddressChange} />
                 </FormGroup>
                 <FormGroup>
                   <Label for="transferAmount">Amount:</Label>
-                  <Input type="number" name="transferAmount" id="transferAmount" placeholder="0" />
+                  <Input type="number" name="transferAmount"
+                    value={this.state.transferAmount}
+                    onChange={this.handleTransferAmountChange} />
                 </FormGroup>
                 <Button color="success" onClick={this.sendAmount}>Send</Button>
               </CardBody>

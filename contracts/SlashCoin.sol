@@ -16,7 +16,7 @@ contract SlashCoin {
   function send(address receiver) payable {
     //require (balances[msg.sender] >= amount);
     require (tx.gasprice == 0);
-    receiver.call.value(msg.value).gas(0);
+    receiver.call.value(msg.value)();
     //balances[msg.sender] -= amount;
     //balances[receiver] += amount;
   }
