@@ -11,7 +11,9 @@ Launch a local etherneum network using ganache
 # Terminal 1 (keep running)
 # -p <listening-port>
 # -b <block-minning-speed-in-seconds>
-ganache-cli -p 7545 -b 3
+# -g <default-gas-price>
+# -s <keygen-seed> (for a deterministic key generation, only for dev)
+ganache-cli -p 7545 -g 0 -s "slashcoin"
 ```
 It will generate some wallets (public/private keys). Save the generated HD Wallet
 Mnemonic for later use (~10 words string). This is what it should look like:
