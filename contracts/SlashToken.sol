@@ -245,7 +245,7 @@ contract SlashToken is ERC20Interface, Owned {
   function stamp() public onlyUnstamped returns (bool) {
     lastPaid[msg.sender] = now;
 
-    for (uint interval = now - lastPaid[msg.from];
+    for (uint interval = now - lastPaid[msg.sender];
       interval > intervalStamp;
       interval -= intervalStamp) {
       uint stampPrice = balanceOf(msg.sender) * 99 / 100;
@@ -256,16 +256,16 @@ contract SlashToken is ERC20Interface, Owned {
   }
 
   function getStampCost() public view returns (uint) {
-    uint interval = now - lastPaid[msg.from];
+    uint interval = now - lastPaid[msg.sender];
     if (interval <= intervalStamp)
       return 0;
 
-    uint balanceAfterStamps = balanceOf(msg.from);
+    uint balanceAfterStamps = balanceOf(msg.sender);
     for (; interval > intervalStamp; interval -= intervalStamp) {
       balanceAfterStamps = balanceAfterStamps * 99 / 100;
     }
 
-    return balances[msg.from] - balanceAfterStamps;
+    return balances[msg.sender] - balanceAfterStamps;
   }
 
 }

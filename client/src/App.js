@@ -99,7 +99,8 @@ class App extends Component {
         <Container>
           <h1>Slash tokens <small>(SLH)</small></h1>
           { !!error && error }
-          { !!this.state.accounts[0] && <Wallet
+          { !!this.state.accounts && <Wallet
+            web3={ this.state.web3 }
             address={ this.state.accounts[0] }
             slh={ this.state.contract } />
           }

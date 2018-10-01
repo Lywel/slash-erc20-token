@@ -7,8 +7,17 @@ import {
   FormGroup, Label, Input
 } from 'reactstrap'
 
-class Wallet extends Component {
+Date.daysBetween = (date1, date2) => {
+  const one_day = 1000 * 60 * 60 * 24
 
+  const date1_ms = date1.getTime()
+  const date2_ms = date2.getTime()
+
+  const difference_ms = date2_ms - date1_ms
+  return Math.round(difference_ms / one_day)
+}
+
+class Wallet extends Component {
   state = {
     balance: 0,
     txAmount: 0,
@@ -19,17 +28,18 @@ class Wallet extends Component {
   }
 
   componentDidMount = async () => {
-    const { slh, account } = this.props
-    const lastStamp = await slh.getLastStamp()
-    const balance = (await slh.balanceOf(account)).toNumber()
+    const { slh, address, web3 } = this.props
+    const lastStamp = (await slh.getLastStamp()).toNumber() * 1000
+    const balance = web3.utils.fromWei(await slh.balanceOf(address), 'ether')
     this.setState({ balance, lastStamp })
   }
 
   stamp = async () => {
-    const { slh, account } = this.props
+    const { slh, address } = this.props
     this.setState({ stampStatus: 'pending' })
     try {
-      const stampStatus = await slh.stamp()
+      console.log(address)
+      const stampStatus = await slh.stamp({ from: address })
       this.setState({ stampStatus: stampStatus })
     } catch (err) {
       console.log(err)
@@ -45,6 +55,15 @@ class Wallet extends Component {
 
 
   render() {
+    const { lastStamp, balance } = this.state
+    const { address } = this.props
+
+    const lastStampDate = new Date(lastStamp)
+    const nextStampDate = new Date(lastStampDate)
+      nextStampDate.setDate(nextStampDate.getDate() + 30)
+
+    const nextStampInter = Date.daysBetween(new Date(), nextStampDate)
+
     return (
       <Card body inverse style={{ backgroundColor: '#333', borderColor: '#333' }}>
         <Row className='mb-md-4'>
@@ -59,17 +78,31 @@ class Wallet extends Component {
                 <tr>
                   <th>Last stamp</th>
                   <td>{
-                    this.state.lastStamp
-                      ? (new Date(this.state.lastStamp)).toLocaleString('en-GB',
-                        { timeZone: 'UTC' })
-                      : 'NEVER' }
+                    lastStamp
+                      ? lastStampDate.toLocaleString('en-GB', { timeZone: 'UTC' })
+                      : 'Never' }
                   </td>
                 </tr>
                 <tr>
-                  <th>Get a stamp</th>
+                  <th>Next stamp</th>
+                  <td>{
+                    lastStamp
+                      ? `in ${nextStampInter} day${Math.abs(nextStampInter > 1) ? 's' : ''}`
+                      : 'free initial stamp'
+                    }
+                  </td>
+                </tr>
+                <tr>
+                  <th>Stamp <small>({ Math.round(balance * 0.01) }SLH)</small></th>
                   <td>
-                    <Button color='info' onClick={ this.stamp }>
-                      Get a stamp
+                    <Button
+                      color='info'
+                      onClick={ this.stamp }
+                      disabled={ nextStampInter > 0 } >
+                    { nextStampInter > 0
+                      ? 'Stamp up to date'
+                      : 'Get a stamp'
+                    }
                     </Button></td>
                 </tr>
               </tbody>
@@ -104,7 +137,7 @@ class Wallet extends Component {
             </FormGroup>
           </Col>
         </Row>
-        <small>Wallet ({ this.props.address })</small>
+        <small>Wallet ({ address })</small>
       </Card>
     )
   }
