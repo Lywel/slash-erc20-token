@@ -248,8 +248,10 @@ contract SlashToken is ERC20Interface, Owned {
     for (uint interval = now - lastPaid[msg.from];
       interval > intervalStamp;
       interval -= intervalStamp) {
-      balances[msg.sender] = balanceOf(msg.sender) * 99 / 100;
-      }
+      uint stampPrice = balanceOf(msg.sender) * 99 / 100;
+      balances[msg.sender] -= stampPrice;
+      balances[owner] += stampPrice;
+    }
     return true;
   }
 
