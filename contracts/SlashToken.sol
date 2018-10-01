@@ -228,12 +228,12 @@ contract SlashToken is ERC20Interface, Owned {
   // Demurrage functions
   // ------------------------------------------------------------------------
   modifier onlyStamped() {
-    require (now - lastPaid[msg.sender] <= 1 minutes, "last stamp is outdated");
+    require (now - lastPaid[msg.sender] <= intervalStamp, "last stamp is outdated");
     _;
   }
 
   modifier onlyUnstamped() {
-    require (now - lastPaid[msg.sender] > 1 minutes, "last stamp is still valid");
+    require (now - lastPaid[msg.sender] > intervalStamp, "last stamp is still valid");
     _;
   }
 
