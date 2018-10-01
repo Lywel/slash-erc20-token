@@ -98,7 +98,7 @@ contract Owned {
 // ERC20 Token, with the addition of symbol, name and decimals and a
 // fixed supply
 // ----------------------------------------------------------------------------
-contract FixedSupplyToken is ERC20Interface, Owned {
+contract SlashToken is ERC20Interface, Owned {
   using SafeMath for uint;
 
   string public symbol;
@@ -114,8 +114,8 @@ contract FixedSupplyToken is ERC20Interface, Owned {
   // Constructor
   // ------------------------------------------------------------------------
   constructor() public {
-    symbol = "FIXED";
-    name = "Example Fixed Supply Token";
+    symbol = "SLHTK";
+    name = "Slash Token";
     decimals = 18;
     _totalSupply = 1000000 * 10**uint(decimals);
     balances[owner] = _totalSupply;

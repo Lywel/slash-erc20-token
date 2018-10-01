@@ -5,27 +5,21 @@ import {
   Row, Col, Container,
   Alert,
   FormGroup, Label, Input } from 'reactstrap';
-import SlashCoin from "./contracts/SlashCoin.json";
+import SlashCoin from "./contracts/SlashToken.json";
 import getWeb3 from "./utils/getWeb3";
 import truffleContract from "truffle-contract";
 
 import "./App.css";
 
 class App extends Component {
-  state = { web3: null, accounts: null, contract: null,
-    mintAmount: 0,
-    transferAddress: 0x00000,
-    transferAmount: 20
-  }
+  state = { web3: null, accounts: null, contract: null }
 
   componentDidMount = async () => {
     try {
-      // Get network provider and web3 instance.
       const web3 = await getWeb3()
-      // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts()
-      console.log(typeof accounts[0])
-      // Get the contract instance.
+      console.log('Current account address:', accounts[0])
+
       const Contract = truffleContract(SlashCoin)
       Contract.setProvider(web3.currentProvider)
       const instance = await Contract.deployed()
@@ -150,7 +144,7 @@ class App extends Component {
           <Alert color="info" style={{ marginTop: 15 }}>
             Connecting to the private network...
           </Alert>
-          <img src="//alwahda-mall.com/images/loading.gif"
+          <img src="//alwahda-mall.com/images/loading.gif" alt='loading...'
              className="rounded mx-auto d-block" />
         </Container>
       );
@@ -159,7 +153,7 @@ class App extends Component {
     return (
       <div className="App">
         <Container>
-          <h1>Slash coins</h1>
+          <h1>Slash tokens <small>(SLHTK)</small></h1>
           { !!error && error }
           { !!page && page }
         </Container>

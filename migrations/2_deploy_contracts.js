@@ -1,5 +1,5 @@
-var SlashCoin = artifacts.require("SlashCoin");
+var SlashToken = artifacts.require("SlashToken");
 
 module.exports = function(deployer) {
-    deployer.deploy(SlashCoin);
+    deployer.deploy(SlashToken);
 };
