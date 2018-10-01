@@ -107,6 +107,7 @@ contract SlashToken is ERC20Interface, Owned {
   uint _totalSupply;
 
   mapping(address => uint) balances;
+  mapping(address => uint) lastPaid;
   mapping(address => mapping(address => uint)) allowed;
 
 
@@ -114,7 +115,7 @@ contract SlashToken is ERC20Interface, Owned {
   // Constructor
   // ------------------------------------------------------------------------
   constructor() public {
-    symbol = "SLHTK";
+    symbol = "SLH";
     name = "Slash Token";
     decimals = 18;
     _totalSupply = 1000000 * 10**uint(decimals);
@@ -221,4 +222,22 @@ contract SlashToken is ERC20Interface, Owned {
   function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {
     return ERC20Interface(tokenAddress).transfer(owner, tokens);
   }
+
+  // ------------------------------------------------------------------------
+  // Demurrage functions
+  // ------------------------------------------------------------------------
+  function setLastStamp(address from) public returns (bool) {
+    lastPaid[from] = now;
+    return true;
+  }
+
+  function getLastStamp(address from) public view returns (uint) {
+    return lastPaid[from];
+  }
+
+  function stamp(address from) public returns (bool) {
+    balances[from] = balanceOf(from) * 99 / 100;
+    return true;
+  }
+
 }
