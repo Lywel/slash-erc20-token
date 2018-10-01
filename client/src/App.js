@@ -1,15 +1,15 @@
 import React, { Component } from "react"
 import {
-  Button,
-  Card, CardTitle, CardBody,
-  Row, Col, Container,
   Alert,
-  FormGroup, Label, Input } from 'reactstrap'
+  Container,
+} from 'reactstrap'
 import SlashCoin from "./contracts/SlashToken.json"
 import getWeb3 from "./utils/getWeb3"
 import truffleContract from "truffle-contract"
 
 import "./App.css"
+
+import Wallet from './Wallet.js'
 
 class App extends Component {
   state = { web3: null, accounts: null, contract: null }
@@ -82,63 +82,7 @@ class App extends Component {
          </Alert>)
       : null)
 
-    const page = ((this.state.balances && this.state.accounts)
-      ? (
-      <div>
-        <Row>
-          <Col md="3">
-            <Card body inverse style={{ backgroundColor: '#333', borderColor: '#333' }}>
-              <CardTitle>Your wallet</CardTitle>
-              <CardBody>
-                <FormGroup>
-                  <Label for="transferAmount">Balance:</Label>
-                  <Input type="text" disabled value={ this.state.balances[0] } />
-                </FormGroup>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col md="4">
-            <Card body inverse style={{ backgroundColor: '#333', borderColor: '#333' }}>
-              <CardTitle>Mint</CardTitle>
-              <CardBody>
-                <FormGroup>
-                  <Label for="mintAmount">Amount:</Label>
-                  <Input type="number" name="mintAmount"
-                    value={this.state.mintAmount}
-                    onChange={this.handleMintAmountChange} />
-                </FormGroup>
-                <Button color="success" onClick={this.mintAmount}>Mint</Button>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col md="5">
-            <Card body inverse style={{ backgroundColor: '#333', borderColor: '#333' }}>
-              <CardTitle>Transfer</CardTitle>
-              <CardBody>
-                <FormGroup>
-                  <Label for="transferTo">Destination:</Label>
-                  <Input type="text" name="transferTo"
-                    placeholder="0x0000..."
-                    value={this.state.transferAddress}
-                    onChange={this.handleTransferAddressChange} />
-                </FormGroup>
-                <FormGroup>
-                  <Label for="transferAmount">Amount:</Label>
-                  <Input type="number" name="transferAmount"
-                    value={this.state.transferAmount}
-                    onChange={this.handleTransferAmountChange} />
-                </FormGroup>
-                <Button color="success" onClick={this.sendAmount}>Send</Button>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-        <small className="text-muted">Account:  { this.state.accounts[0] }</small>
-      </div>
-      )
-      : null)
-
-    if ((!this.state.balances || !this.state.accounts) && !error) {
+    if (!this.state.accounts && !error) {
       return (
         <Container>
           <Alert color="info" style={{ marginTop: 15 }}>
@@ -153,9 +97,12 @@ class App extends Component {
     return (
       <div className="App">
         <Container>
-          <h1>Slash tokens <small>(SLHTK)</small></h1>
+          <h1>Slash tokens <small>(SLH)</small></h1>
           { !!error && error }
-          { !!page && page }
+          { !!this.state.accounts[0] && <Wallet
+            address={ this.state.accounts[0] }
+            slh={ this.state.contract } />
+          }
         </Container>
       </div>
     )
