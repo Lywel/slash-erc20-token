@@ -1,15 +1,15 @@
-import React, { Component } from "react";
+import React, { Component } from "react"
 import {
   Button,
   Card, CardTitle, CardBody,
   Row, Col, Container,
   Alert,
-  FormGroup, Label, Input } from 'reactstrap';
-import SlashCoin from "./contracts/SlashToken.json";
-import getWeb3 from "./utils/getWeb3";
-import truffleContract from "truffle-contract";
+  FormGroup, Label, Input } from 'reactstrap'
+import SlashCoin from "./contracts/SlashToken.json"
+import getWeb3 from "./utils/getWeb3"
+import truffleContract from "truffle-contract"
 
-import "./App.css";
+import "./App.css"
 
 class App extends Component {
   state = { web3: null, accounts: null, contract: null }
@@ -24,7 +24,7 @@ class App extends Component {
       Contract.setProvider(web3.currentProvider)
       const instance = await Contract.deployed()
 
-      this.setState({ web3, accounts, contract: instance }, this.getBalances);
+      this.setState({ web3, accounts, contract: instance }, this.getBalances)
     } catch (error) {
       this.setState({ error: error.toString() })
       console.error(error)
@@ -32,26 +32,26 @@ class App extends Component {
   }
 
   getBalances = async () => {
-    const { accounts } = this.state;
-    //await contract.set(5, { from: accounts[0] });
-    //const response = await contract.get();
-    //this.setState({ storageValue: response.toNumber() });
+    const { accounts } = this.state
+    //await contract.set(5, { from: accounts[0] })
+    //const response = await contract.get()
+    //this.setState({ storageValue: response.toNumber() })
 
     const balances = await Promise.all(accounts.map(this.computeBalance))
     this.setState({ balances: balances })
   }
 
   computeBalance = async (address) => {
-    const { web3 } = this.state;
+    const { web3 } = this.state
     const weiBalance = await web3.eth.getBalance(address)
-    return web3.utils.fromWei(`${weiBalance}`, 'ether');
+    return web3.utils.fromWei(`${weiBalance}`, 'ether')
   }
 
   mintAmount = async () => {
     const { contract, accounts } = this.state
     await contract.mint(accounts[0], this.state.mintAmount, { from: accounts[0] })
-    //const response = await contract.get();
-    //this.setState({ storageValue: response.toNumber() });
+    //const response = await contract.get()
+    //this.setState({ storageValue: response.toNumber() })
   }
 
   sendAmount = async () => {
@@ -147,7 +147,7 @@ class App extends Component {
           <img src="//alwahda-mall.com/images/loading.gif" alt='loading...'
              className="rounded mx-auto d-block" />
         </Container>
-      );
+      )
     }
 
     return (
@@ -158,8 +158,8 @@ class App extends Component {
           { !!page && page }
         </Container>
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App
