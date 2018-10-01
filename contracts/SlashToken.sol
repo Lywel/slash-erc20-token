@@ -105,6 +105,7 @@ contract SlashToken is ERC20Interface, Owned {
   string public  name;
   uint8 public decimals;
   uint _totalSupply;
+  uint intervalStamp = 1 minutes;
 
   mapping(address => uint) balances;
   mapping(address => uint) lastPaid;
@@ -145,7 +146,7 @@ contract SlashToken is ERC20Interface, Owned {
   // - Owner's account must have sufficient balance to transfer
   // - 0 value transfers are allowed
   // ------------------------------------------------------------------------
-  function transfer(address to, uint tokens) public returns (bool success) {
+  function transfer(address to, uint tokens) public onlyStamped returns (bool success) {
     balances[msg.sender] = balances[msg.sender].sub(tokens);
     balances[to] = balances[to].add(tokens);
     emit Transfer(msg.sender, to, tokens);
@@ -226,18 +227,43 @@ contract SlashToken is ERC20Interface, Owned {
   // ------------------------------------------------------------------------
   // Demurrage functions
   // ------------------------------------------------------------------------
-  function setLastStamp(address from) public returns (bool) {
-    lastPaid[from] = now;
+  modifier onlyStamped() {
+    require (now - lastPaid[msg.sender] <= 1 minutes, "last stamp is outdated");
+    _;
+  }
+
+  modifier onlyUnstamped() {
+    require (now - lastPaid[msg.sender] > 1 minutes, "last stamp is still valid");
+    _;
+  }
+
+
+  function getLastStamp() public view returns (uint) {
+    return lastPaid[msg.sender];
+  }
+
+  function stamp() public onlyUnstamped returns (bool) {
+    lastPaid[msg.sender] = now;
+
+    for (uint interval = now - lastPaid[msg.from];
+      interval > intervalStamp;
+      interval -= intervalStamp) {
+      balances[msg.sender] = balanceOf(msg.sender) * 99 / 100;
+      }
     return true;
   }
 
-  function getLastStamp(address from) public view returns (uint) {
-    return lastPaid[from];
-  }
+  function getStampCost() public view returns (uint) {
+    uint interval = now - lastPaid[msg.from];
+    if (interval <= intervalStamp)
+      return 0;
 
-  function stamp(address from) public returns (bool) {
-    balances[from] = balanceOf(from) * 99 / 100;
-    return true;
+    uint balanceAfterStamps = balanceOf(msg.from);
+    for (; interval > intervalStamp; interval -= intervalStamp) {
+      balanceAfterStamps = balanceAfterStamps * 99 / 100;
+    }
+
+    return balances[msg.from] - balanceAfterStamps;
   }
 
 }
