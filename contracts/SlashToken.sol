@@ -149,6 +149,8 @@ contract SlashToken is ERC20Interface, Owned {
   function transfer(address to, uint tokens) public onlyStamped returns (bool success) {
     balances[msg.sender] = balances[msg.sender].sub(tokens);
     balances[to] = balances[to].add(tokens);
+    if (lastPaid[to] == 0) {
+      lastPaid[to] = now;
     emit Transfer(msg.sender, to, tokens);
     return true;
   }
