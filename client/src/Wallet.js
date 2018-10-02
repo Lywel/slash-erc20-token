@@ -46,7 +46,13 @@ class Wallet extends Component {
     }
   }
 
-  sendAmount = async () => {
+  submitTx = async () => {
+    const { slh, address, web3 } = this.props
+    const { txFrom, txTo, txAmount } = this.state
+
+    const weiAmount = web3.utils.toWei(txAmount)
+
+    await slh.transfer(txTo, weiAmount, { from: address })
   }
 
   handleFormChange = target => evt => {
@@ -133,7 +139,10 @@ class Wallet extends Component {
                 name='txAmount'
                 value={ this.state.txAmount }
                 onChange={ this.handleFormChange('txAmount') }/>
-              <Button color='warning' className='ml-md-3'>Submit transaction</Button>
+              <Button
+                color='warning'
+                className='ml-md-3'
+                onClick={ this.submitTx }>Submit transaction</Button>
             </FormGroup>
           </Col>
         </Row>
