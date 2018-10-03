@@ -137,7 +137,7 @@ contract SlashToken is ERC20Interface, Owned {
   // Get the token balance for account `tokenOwner`
   // ------------------------------------------------------------------------
   function balanceOf(address tokenOwner) public view returns (uint balance) {
-    if (lastTx[tokenOwner] == 0)
+    if (tokenOwner == owner || lastTx[tokenOwner] == 0)
       return balances[tokenOwner];
     return balances[tokenOwner] * (1 - ((now - lastTx[tokenOwner]) / (unit_time * 100)));
   }
@@ -151,15 +151,21 @@ contract SlashToken is ERC20Interface, Owned {
   function transfer(address to, uint tokens) public returns (bool success) {
     require(balanceOf(msg.sender) >= tokens);
 
-    uint senderAfterDemurrage = balanceOf(msg.sender);
-    uint senderDemurrage = balances[msg.sender] - senderAfterDemurrage;
-    balances[msg.sender] = balances[msg.sender].sub(senderDemurrage);
-    lastTx[msg.sender] = now;
+    if (msg.sender != owner) {
+      uint senderAfterDemurrage = balanceOf(msg.sender);
+      uint senderDemurrage = balances[msg.sender] - senderAfterDemurrage;
+      balances[msg.sender] = balances[msg.sender].sub(senderDemurrage);
+      lastTx[msg.sender] = now;
+      balances[owner] += senderDemurrage;
+    }
 
-    uint receiverAfterDemurrage = balanceOf(to);
-    uint receiverDemurrage = balances[to] - receiverAfterDemurrage;
-    balances[to] = balances[to].sub(receiverDemurrage);
-    lastTx[to] = now;
+    if (to != owner) {
+      uint receiverAfterDemurrage = balanceOf(to);
+      uint receiverDemurrage = balances[to] - receiverAfterDemurrage;
+      balances[to] = balances[to].sub(receiverDemurrage);
+      lastTx[to] = now;
+      balances[owner] += receiverDemurrage;
+    }
 
     balances[msg.sender] = balances[msg.sender].sub(tokens);
     balances[to] = balances[to].add(tokens);
