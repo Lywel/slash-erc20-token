@@ -13,7 +13,7 @@ Launch a local etherneum network using ganache
 # -b <block-minning-speed-in-seconds>
 # -g <default-gas-price>
 # -s <keygen-seed> (for a deterministic key generation, only for dev)
-ganache-cli -p 8545 -g 0 -s "slashcoin"
+ganache-cli -p 7545 -g 0 -s "slashcoin"
 ```
 It will generate some wallets (public/private keys). Save the generated HD Wallet
 Mnemonic for later use (~10 words string). This is what it should look like:
@@ -27,7 +27,7 @@ Mnemonic: physical engage misery rival check frequent range runway ability radio
 Connect to the new network using the HD Wallet mnemonic. In your browser, open
 MetaMask click on `Import using account seed phrase` button and creating
 a password to access it. Then in the list of networks select `Custom RPC` and
-use the local address `http://127.0.0.1:8545` as the `new RPC URL`. Then you're
+use the local address `http://127.0.0.1:7545` as the `new RPC URL`. Then you're
 connected and should see 100ETH in the default wallet.
 
 
