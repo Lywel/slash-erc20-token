@@ -34,6 +34,16 @@ library SafeMath {
     require(b > 0);
     c = a / b;
   }
+
+  function lowCap(uint a, uint infBound) internal pure returns (uint c) {
+    int ai = int(a);
+    int inf = int(infBound);
+
+    if (ai < inf)
+      return infBound;
+
+    return a;
+  }
 }
 
 
@@ -105,7 +115,7 @@ contract SlashToken is ERC20Interface, Owned {
   string public  name;
   uint8 public decimals;
   uint _totalSupply;
-  uint unit_time = 1 minutes;
+  uint demurrageCoef;
 
   mapping(address => uint) balances;
   mapping(address => uint) lastTx;
@@ -121,6 +131,7 @@ contract SlashToken is ERC20Interface, Owned {
     decimals = 18;
     _totalSupply = 1000000 * 10**uint(decimals);
     balances[owner] = _totalSupply;
+    demurrageCoef = 100 * 30 days;
     emit Transfer(address(0), owner, _totalSupply);
   }
 
@@ -137,10 +148,20 @@ contract SlashToken is ERC20Interface, Owned {
   // Get the token balance for account `tokenOwner`
   // ------------------------------------------------------------------------
   function balanceOf(address tokenOwner) public view returns (uint balance) {
-    if (tokenOwner == owner || lastTx[tokenOwner] == 0)
+    if (lastTx[tokenOwner] == 0)
       return balances[tokenOwner];
-    //return balances[tokenOwner] * (1 - ((now - lastTx[tokenOwner]) / (unit_time * 100)));
-    return balances[tokenOwner] - (balances[tokenOwner] * ((now - lastTx[tokenOwner]))) / (unit_time * 100);
+
+    // Bt = B0 * (1 - t / q)
+    // Bt = B0 - B0 * t / q
+    //  Bt: current balance
+    //  B0: Balance after last tx
+    //  q : demurrage coef
+    //  t : elaspedtime
+
+    uint elapsedTime = now - lastTx[tokenOwner];
+    uint demurrage = (balances[tokenOwner] * elapsedTime) / demurrageCoef;
+
+    return (balances[tokenOwner] - demurrage).lowCap(0);
   }
 
 
@@ -244,11 +265,4 @@ contract SlashToken is ERC20Interface, Owned {
   function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {
     return ERC20Interface(tokenAddress).transfer(owner, tokens);
   }
-
-  // ------------------------------------------------------------------------
-  // Demurrage functions
-  // ------------------------------------------------------------------------
-
-
-
 }
