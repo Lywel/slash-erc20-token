@@ -105,10 +105,10 @@ contract SlashToken is ERC20Interface, Owned {
   string public  name;
   uint8 public decimals;
   uint _totalSupply;
-  uint intervalStamp = 15 minutes;
+  uint unit_time = 1 minutes;
 
   mapping(address => uint) balances;
-  mapping(address => uint) lastPaid;
+  mapping(address => uint) lastTx;
   mapping(address => mapping(address => uint)) allowed;
 
 
@@ -137,7 +137,9 @@ contract SlashToken is ERC20Interface, Owned {
   // Get the token balance for account `tokenOwner`
   // ------------------------------------------------------------------------
   function balanceOf(address tokenOwner) public view returns (uint balance) {
-    return balances[tokenOwner];
+    if (lastTx[tokenOwner] == 0)
+      return balances[tokenOwner];
+    return balances[tokenOwner] * (1 - ((now - lastTx[tokenOwner]) / (unit_time * 100)));
   }
 
 
@@ -146,11 +148,21 @@ contract SlashToken is ERC20Interface, Owned {
   // - Owner's account must have sufficient balance to transfer
   // - 0 value transfers are allowed
   // ------------------------------------------------------------------------
-  function transfer(address to, uint tokens) public onlyStamped returns (bool success) {
+  function transfer(address to, uint tokens) public returns (bool success) {
+    require(balanceOf(msg.sender) >= tokens);
+
+    uint senderAfterDemurrage = balanceOf(msg.sender);
+    uint senderDemurrage = balances[msg.sender] - senderAfterDemurrage;
+    balances[msg.sender] = balances[msg.sender].sub(senderDemurrage);
+    lastTx[msg.sender] = now;
+
+    uint receiverAfterDemurrage = balanceOf(to);
+    uint receiverDemurrage = balances[to] - receiverAfterDemurrage;
+    balances[to] = balances[to].sub(receiverDemurrage);
+    lastTx[to] = now;
+
     balances[msg.sender] = balances[msg.sender].sub(tokens);
     balances[to] = balances[to].add(tokens);
-    if (lastPaid[to] == 0)
-      lastPaid[to] = now;
     emit Transfer(msg.sender, to, tokens);
     return true;
   }
@@ -229,53 +241,7 @@ contract SlashToken is ERC20Interface, Owned {
   // ------------------------------------------------------------------------
   // Demurrage functions
   // ------------------------------------------------------------------------
-  modifier onlyStamped() {
-    require (now - lastPaid[msg.sender] <= intervalStamp, "last stamp is outdated");
-    _;
-  }
-
-  modifier onlyUnstamped() {
-    require (now - lastPaid[msg.sender] > intervalStamp, "last stamp is still valid");
-    _;
-  }
 
 
-  function getLastStamp() public view returns (uint) {
-    return lastPaid[msg.sender];
-  }
-
-  function stamp() public onlyUnstamped returns (bool) {
-    if (lastPaid[msg.sender] == 0) {
-      lastPaid[msg.sender] = now;
-      return true;
-    }
-
-    for (uint interval = now - lastPaid[msg.sender];
-      interval > intervalStamp;
-      interval -= intervalStamp) {
-      uint stampPrice = balanceOf(msg.sender) * 99 / 100;
-      balances[msg.sender] -= stampPrice;
-      balances[owner] += stampPrice;
-    }
-
-    lastPaid[msg.sender] = now;
-    return true;
-  }
-
-  function getStampCost() public view returns (uint) {
-    if (lastPaid[msg.sender] == 0)
-      return 0;
-
-    uint interval = now - lastPaid[msg.sender];
-    if (interval <= intervalStamp)
-      return 0;
-
-    uint balanceAfterStamps = balanceOf(msg.sender);
-    for (; interval > intervalStamp; interval -= intervalStamp) {
-      balanceAfterStamps = balanceAfterStamps * 99 / 100;
-    }
-
-    return balances[msg.sender] - balanceAfterStamps;
-  }
 
 }
