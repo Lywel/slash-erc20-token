@@ -18,7 +18,6 @@ class App extends Component {
     try {
       const web3 = await getWeb3()
       const accounts = await web3.eth.getAccounts()
-      console.log('Current account address:', accounts[0])
 
       const Contract = truffleContract(SlashCoin)
       Contract.setProvider(web3.currentProvider)
@@ -30,49 +29,6 @@ class App extends Component {
       console.error(error)
     }
   }
-
-  getBalances = async () => {
-    const { accounts } = this.state
-    //await contract.set(5, { from: accounts[0] })
-    //const response = await contract.get()
-    //this.setState({ storageValue: response.toNumber() })
-
-    const balances = await Promise.all(accounts.map(this.computeBalance))
-    this.setState({ balances: balances })
-  }
-
-  computeBalance = async (address) => {
-    const { web3 } = this.state
-    const weiBalance = await web3.eth.getBalance(address)
-    return web3.utils.fromWei(`${weiBalance}`, 'ether')
-  }
-
-  mintAmount = async () => {
-    const { contract, accounts } = this.state
-    //const response = await contract.get()
-    //this.setState({ storageValue: response.toNumber() })
-  }
-
-  sendAmount = async () => {
-    const { web3, contract, accounts } = this.state
-    console.log('before', this.state.transferAmount)
-    await contract.send(this.state.transferAddress, {
-        from: accounts[0],
-        value: web3.utils.toWei(`${this.state.transferAmount}`, 'ether')
-      })
-    console.log('after')
-  }
-
-  handleMintAmountChange = (e) => {
-    this.setState({ mintAmount: e.target.value })
-  }
-  handleTransferAmountChange = (e) => {
-    this.setState({ transferAmount: e.target.value })
-  }
-  handleTransferAddressChange = (e) => {
-    this.setState({ transferAddress: e.target.value })
-  }
-
 
   render() {
     const error = (this.state.error

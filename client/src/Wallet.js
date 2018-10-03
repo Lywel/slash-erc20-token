@@ -23,7 +23,7 @@ class Wallet extends Component {
 
   submitTx = async () => {
     const { slh, address, web3 } = this.props
-    const { txFrom, txTo, txAmount } = this.state
+    const { txTo, txAmount } = this.state
     const weiAmount = web3.utils.toWei(txAmount)
 
     await slh.transfer(txTo, weiAmount, { from: address })
@@ -35,7 +35,6 @@ class Wallet extends Component {
 
 
   render() {
-    const { lastStamp, balance, stampPrice } = this.state
     const { address } = this.props
 
     return (
