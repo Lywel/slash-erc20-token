@@ -139,7 +139,8 @@ contract SlashToken is ERC20Interface, Owned {
   function balanceOf(address tokenOwner) public view returns (uint balance) {
     if (tokenOwner == owner || lastTx[tokenOwner] == 0)
       return balances[tokenOwner];
-    return balances[tokenOwner] * (1 - ((now - lastTx[tokenOwner]) / (unit_time * 100)));
+    //return balances[tokenOwner] * (1 - ((now - lastTx[tokenOwner]) / (unit_time * 100)));
+    return balances[tokenOwner] - (balances[tokenOwner] * ((now - lastTx[tokenOwner]))) / (unit_time * 100);
   }
 
 
