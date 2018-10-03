@@ -29,27 +29,22 @@ class Wallet extends Component {
 
   componentDidMount = async () => {
     const { slh, address, web3 } = this.props
-    const lastStamp = (await slh.getLastStamp()).toNumber() * 1000
+    const lastStamp = (await slh.getLastStamp({ from: address })).toNumber() * 1000
     const balance = web3.utils.fromWei(await slh.balanceOf(address), 'ether')
-    this.setState({ balance, lastStamp })
+    const stampPrice = web3.utils.fromWei(await slh.getStampCost({ from: address }), 'ether')
+    this.setState({ balance, lastStamp, stampPrice })
   }
 
   stamp = async () => {
     const { slh, address } = this.props
-    this.setState({ stampStatus: 'pending' })
-    try {
-      console.log(address)
-      const stampStatus = await slh.stamp({ from: address })
-      this.setState({ stampStatus: stampStatus })
-    } catch (err) {
-      console.log(err)
-    }
+    const res = await slh.stamp({ from: address })
+    console.log(res ? 'stamped !' : 'failed :(')
+    console.log(res)
   }
 
   submitTx = async () => {
     const { slh, address, web3 } = this.props
     const { txFrom, txTo, txAmount } = this.state
-
     const weiAmount = web3.utils.toWei(txAmount)
 
     await slh.transfer(txTo, weiAmount, { from: address })
@@ -61,7 +56,7 @@ class Wallet extends Component {
 
 
   render() {
-    const { lastStamp, balance } = this.state
+    const { lastStamp, balance, stampPrice } = this.state
     const { address } = this.props
 
     const lastStampDate = new Date(lastStamp)
@@ -99,7 +94,7 @@ class Wallet extends Component {
                   </td>
                 </tr>
                 <tr>
-                  <th>Stamp <small>({ Math.round(balance * 0.01) }SLH)</small></th>
+                  <th>Stamp <small>({ stampPrice }SLH)</small></th>
                   <td>
                     <Button
                       color='info'

@@ -105,7 +105,7 @@ contract SlashToken is ERC20Interface, Owned {
   string public  name;
   uint8 public decimals;
   uint _totalSupply;
-  uint intervalStamp = 1 minutes;
+  uint intervalStamp = 15 minutes;
 
   mapping(address => uint) balances;
   mapping(address => uint) lastPaid;
@@ -149,7 +149,7 @@ contract SlashToken is ERC20Interface, Owned {
   function transfer(address to, uint tokens) public onlyStamped returns (bool success) {
     balances[msg.sender] = balances[msg.sender].sub(tokens);
     balances[to] = balances[to].add(tokens);
-    if (lastPaid[to] == 0) {
+    if (lastPaid[to] == 0)
       lastPaid[to] = now;
     emit Transfer(msg.sender, to, tokens);
     return true;
@@ -263,6 +263,9 @@ contract SlashToken is ERC20Interface, Owned {
   }
 
   function getStampCost() public view returns (uint) {
+    if (lastPaid[msg.sender] == 0)
+      return 0;
+
     uint interval = now - lastPaid[msg.sender];
     if (interval <= intervalStamp)
       return 0;
